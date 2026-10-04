@@ -23,7 +23,10 @@ type Bird = {
 
 // Czerń piór i ich fioletowy połysk w ruchu
 const COLORS = ["#141312", "#3a2a96", "#6b4eff"];
-const FAMILY = "'Archivo Variable', 'Helvetica Neue', Arial, sans-serif";
+// Rodzina fontu z next/font (nazwa jest generowana przy budowaniu, więc czytamy ją ze zmiennej CSS)
+const fontFamily = () =>
+  getComputedStyle(document.documentElement).getPropertyValue("--font-archivo").trim() ||
+  "Arial, sans-serif";
 
 type Props = {
   text: string;
@@ -63,6 +66,13 @@ export function CrowFlock({ text, containerRef, boxRef, progress }: Props) {
     let firstSample = true;
     const start = performance.now();
     const pointer = { x: -9999, y: -9999, active: false };
+    // Telefony: lżejszy tryb (rozdzielczość 1×, 30 kl./s, prostszy kształt, krótszy przylot)
+    const lite = window.matchMedia("(max-width: 639px), (pointer: coarse)").matches;
+    const frameGap = lite ? 1000 / 30 - 2 : 0;
+    // Kiedy ostatnio coś się działo (ruch kursora, kliknięcie, przewijanie).
+    // Gdy przez chwilę nic się nie dzieje i wrony usiądą, animacja całkowicie się zatrzymuje.
+    let lastActivity = performance.now();
+    let energy = 1;
 
     const makeBird = (hx: number, hy: number, intro: boolean): Bird => ({
       x: intro ? W + 40 + Math.random() * W * 0.5 : hx,
@@ -73,7 +83,7 @@ export function CrowFlock({ text, containerRef, boxRef, progress }: Props) {
       hy,
       s: step * (0.36 + Math.random() * 0.12),
       phase: Math.random() * Math.PI * 2,
-      delay: intro ? 150 + Math.random() * 1100 : 0,
+      delay: intro ? 150 + Math.random() * (lite ? 500 : 1100) : 0,
       takeoff: 0.04 + Math.random() * 0.5,
       ox: -200 + Math.random() * 800,
       oy: 150 + Math.random() * 500,
@@ -88,7 +98,7 @@ export function CrowFlock({ text, containerRef, boxRef, progress }: Props) {
       const br = box.getBoundingClientRect();
       W = cr.width;
       H = cr.height;
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      dpr = lite ? 1 : Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.round(W * dpr);
       canvas.height = Math.round(H * dpr);
       canvas.style.width = `${W}px`;
@@ -98,7 +108,7 @@ export function CrowFlock({ text, containerRef, boxRef, progress }: Props) {
       const by = br.top - cr.top;
       const bw = Math.max(1, br.width);
       const bh = Math.max(1, br.height);
-      step = bw < 520 ? 5.4 : bw < 900 ? 7 : bw < 1300 ? 8.6 : 9.6;
+      step = bw < 520 ? 6.4 : bw < 900 ? 7.6 : bw < 1300 ? 8.6 : 9.6;
 
       const off = document.createElement("canvas");
       off.width = Math.ceil(bw);
@@ -108,7 +118,7 @@ export function CrowFlock({ text, containerRef, boxRef, progress }: Props) {
       if ("fontStretch" in o) (o as { fontStretch: string }).fontStretch = "expanded";
       // Wąskie, wysokie pole (telefon): każde słowo w osobnej linii
       const lines = bh / bw > 0.28 ? text.split(" ") : [text];
-      o.font = `800 100px ${FAMILY}`;
+      o.font = `800 100px ${fontFamily()}`;
       const metrics = lines.map((l) => o.measureText(l));
       const widest = Math.max(...metrics.map((m) => m.width));
       const asc100 = Math.max(...metrics.map((m) => m.actualBoundingBoxAscent));
@@ -117,7 +127,7 @@ export function CrowFlock({ text, containerRef, boxRef, progress }: Props) {
       const blockH100 = lines.length * (asc100 + desc100) + (lines.length - 1) * lineGap;
       const size = Math.min(((bw * 0.995) / widest) * 100, ((bh * 0.98) / blockH100) * 100);
       const k = size / 100;
-      o.font = `800 ${size}px ${FAMILY}`;
+      o.font = `800 ${size}px ${fontFamily()}`;
       o.fillStyle = "#000";
       const blockH = blockH100 * k;
       let y0 = (bh - blockH) / 2;
@@ -160,6 +170,8 @@ export function CrowFlock({ text, containerRef, boxRef, progress }: Props) {
 
     const update = (dt: number, now: number) => {
       const p = progress?.get() ?? 0;
+      const resting = now - lastActivity > 2500 && now - start > 5500;
+      energy = 0;
       const R = Math.max(80, Math.min(W, 1600) * 0.075);
       const maxSpeed = 10;
 
@@ -206,8 +218,11 @@ export function CrowFlock({ text, containerRef, boxRef, progress }: Props) {
         b.y += b.vy * dt;
         b.startle *= Math.pow(0.975, dt);
         b.flutter *= Math.pow(0.95, dt);
-        if (Math.random() < 0.0005 * dt) b.flutter = 1;
+        // pojedyncze wrony czasem poruszą skrzydłami, ale tylko gdy strona „żyje”
+        if (!resting && Math.random() < 0.0005 * dt) b.flutter = 1;
         const speed = Math.hypot(b.vx, b.vy);
+        const e = speed + b.startle + b.flutter + (away ? 1 : Math.min(1, Math.hypot(b.hx - b.x, b.hy - b.y) / 4));
+        if (e > energy) energy = e;
         b.phase += (0.07 + speed * 0.05 + b.startle * 0.38 + b.flutter * 0.32) * dt;
       }
     };
@@ -247,8 +262,16 @@ export function CrowFlock({ text, containerRef, boxRef, progress }: Props) {
         const k = sheen < 0.28 ? 0 : sheen < 0.58 ? 1 : 2;
         const path = paths[k * 2 + (b.seed > Math.PI ? 1 : 0)];
         path.moveTo(tx(-sz, tipY), ty(-sz, tipY));
-        path.quadraticCurveTo(tx(-sz * 0.45, ctrlY), ty(-sz * 0.45, ctrlY), b.x, b.y);
-        path.quadraticCurveTo(tx(sz * 0.45, ctrlY), ty(sz * 0.45, ctrlY), tx(sz, tipY), ty(sz, tipY));
+        if (lite) {
+          // na małym ekranie różnicy nie widać, a linie proste są tańsze od krzywych
+          path.lineTo(tx(-sz * 0.4, ctrlY), ty(-sz * 0.4, ctrlY));
+          path.lineTo(b.x, b.y);
+          path.lineTo(tx(sz * 0.4, ctrlY), ty(sz * 0.4, ctrlY));
+          path.lineTo(tx(sz, tipY), ty(sz, tipY));
+        } else {
+          path.quadraticCurveTo(tx(-sz * 0.45, ctrlY), ty(-sz * 0.45, ctrlY), b.x, b.y);
+          path.quadraticCurveTo(tx(sz * 0.45, ctrlY), ty(sz * 0.45, ctrlY), tx(sz, tipY), ty(sz, tipY));
+        }
       }
 
       for (let i = 0; i < 6; i++) {
@@ -259,11 +282,17 @@ export function CrowFlock({ text, containerRef, boxRef, progress }: Props) {
     };
 
     const tick = (now: number) => {
+      if (frameGap && last && now - last < frameGap) {
+        raf = visible ? requestAnimationFrame(tick) : 0;
+        return;
+      }
       const dt = Math.min(3, (now - (last || now)) / 16.667) || 1;
       last = now;
       update(dt, now);
       draw(now);
-      raf = visible ? requestAnimationFrame(tick) : 0;
+      // wszystkie wrony siedzą i nic się nie dzieje: zatrzymujemy animację (zero pracy procesora)
+      const asleep = now - lastActivity > 2500 && now - start > 5500 && energy < 0.03;
+      raf = visible && !asleep ? requestAnimationFrame(tick) : 0;
     };
 
     const run = () => {
@@ -275,17 +304,25 @@ export function CrowFlock({ text, containerRef, boxRef, progress }: Props) {
     };
 
     // Interakcja: kursor płoszy, kliknięcie/dotknięcie płoszy mocniej
+    const wake = () => {
+      lastActivity = performance.now();
+      run();
+    };
     const onMove = (e: PointerEvent) => {
       const r = container.getBoundingClientRect();
+      const wasActive = pointer.active;
       pointer.x = e.clientX - r.left;
       pointer.y = e.clientY - r.top;
       pointer.active = pointer.x >= 0 && pointer.y >= 0 && pointer.x <= r.width && pointer.y <= r.height;
+      if (pointer.active || wasActive) wake();
     };
     const onLeave = () => {
       pointer.active = false;
+      wake();
     };
     const onDown = (e: PointerEvent) => {
       if ((e.target as HTMLElement).closest("a, button, input, textarea, select")) return;
+      wake();
       const r = container.getBoundingClientRect();
       const px = e.clientX - r.left;
       const py = e.clientY - r.top;
@@ -312,7 +349,7 @@ export function CrowFlock({ text, containerRef, boxRef, progress }: Props) {
       cancelAnimationFrame(resizeRaf);
       resizeRaf = requestAnimationFrame(() => {
         sample();
-        run();
+        wake();
       });
     });
     ro.observe(container);
@@ -325,19 +362,28 @@ export function CrowFlock({ text, containerRef, boxRef, progress }: Props) {
     io.observe(container);
 
     window.addEventListener("pointermove", onMove, { passive: true });
+    const unsubscribeScroll = progress?.on("change", wake);
     document.documentElement.addEventListener("pointerleave", onLeave);
     container.addEventListener("pointerdown", onDown);
 
     const fontsReady = document.fonts
-      ? document.fonts.load(`800 100px ${FAMILY}`).catch(() => undefined)
+      ? document.fonts.load(`800 100px ${fontFamily()}`).catch(() => undefined)
       : Promise.resolve();
     let cancelled = false;
-    fontsReady.then(() => {
-      if (cancelled) return;
-      ready = true;
-      sample();
-      run();
-    });
+    // Start dopiero, gdy przeglądarka skończy ładować stronę i ma wolną chwilę:
+    // stado nie konkuruje z uruchamianiem strony (lepsze wyniki wydajności).
+    const whenIdle = (cb: () => void) =>
+      typeof window.requestIdleCallback === "function"
+        ? window.requestIdleCallback(cb, { timeout: 600 })
+        : globalThis.setTimeout(cb, 120);
+    fontsReady.then(() =>
+      whenIdle(() => {
+        if (cancelled) return;
+        ready = true;
+        sample();
+        run();
+      }),
+    );
 
     return () => {
       cancelled = true;
@@ -348,6 +394,7 @@ export function CrowFlock({ text, containerRef, boxRef, progress }: Props) {
       window.removeEventListener("pointermove", onMove);
       document.documentElement.removeEventListener("pointerleave", onLeave);
       container.removeEventListener("pointerdown", onDown);
+      unsubscribeScroll?.();
     };
   }, [text, containerRef, boxRef, progress]);
 

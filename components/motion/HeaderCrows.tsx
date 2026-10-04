@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { animate, motion } from "motion/react";
+import { FeatherShape } from "@/components/ui/FeatherShape";
 
 type Phase = "hidden" | "flying" | "perched" | "leaving" | "gone";
 
@@ -44,19 +45,6 @@ function FlyingCrow() {
   );
 }
 
-function Feather() {
-  return (
-    <svg viewBox="0 0 12 40" className="h-full w-full" aria-hidden>
-      <path
-        fill="currentColor"
-        opacity="0.85"
-        d="M6 2 C10 8 11 18 9.2 29 C8.4 33 7.2 36.5 6 39.5 C5 35.5 3.4 31.5 2.8 25.5 C1.8 16 3 7.5 6 2 Z"
-      />
-      <path d="M6 4 L6 39.5" stroke="var(--color-paper)" strokeWidth="0.6" opacity="0.7" />
-    </svg>
-  );
-}
-
 /**
  * Wabi-sabi na podstronach: kilka wron przelatuje przez nagłówek, jedna
  * przysiada na pierwszej literze tytułu, po chwili odlatuje i zostawia
@@ -84,9 +72,19 @@ export function HeaderCrows({ containerRef }: { containerRef: RefObject<HTMLElem
       const cr = container.getBoundingClientRect();
       const r = word.getBoundingClientRect();
       const s = Math.max(24, Math.min(72, fs * 0.42));
+      // dokładne położenie pierwszej litery
+      let letterCenter = r.left + fs * 0.3;
+      const textNode = word.firstChild;
+      if (textNode && textNode.nodeType === Node.TEXT_NODE) {
+        const range = document.createRange();
+        range.setStart(textNode, 0);
+        range.setEnd(textNode, 1);
+        const lr = range.getBoundingClientRect();
+        if (lr.width > 0) letterCenter = lr.left + lr.width / 2;
+      }
       // stopy wrony na górnej krawędzi pierwszej (wielkiej) litery
       perch.current = {
-        x: r.left - cr.left + fs * 0.3 - s / 2,
+        x: letterCenter - cr.left - s / 2,
         y: r.top - cr.top + fs * 0.085 - s,
         s,
       };
@@ -219,7 +217,7 @@ export function HeaderCrows({ containerRef }: { containerRef: RefObject<HTMLElem
         className="absolute top-0 left-0 opacity-0"
         style={{ width: size * 0.22, height: size * 0.72 }}
       >
-        <Feather />
+        <FeatherShape className="h-full w-full opacity-85" />
       </div>
     </div>
   );

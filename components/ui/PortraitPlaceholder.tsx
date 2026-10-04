@@ -10,7 +10,7 @@ export function PortraitPlaceholder({ priority }: { priority?: boolean }) {
         src="/filip-wrona.jpg"
         alt="Filip Wrona"
         fill
-        priority={priority}
+        preload={priority}
         sizes="(min-width: 768px) 40vw, 100vw"
         className="object-cover grayscale"
       />

@@ -2,6 +2,8 @@ import { testimonials } from "@/lib/content";
 import { TextReveal } from "@/components/motion/TextReveal";
 
 export function Testimonials() {
+  // Sekcja pojawi się, gdy w lib/content.ts będą prawdziwe opinie.
+  if (testimonials.length === 0) return null;
   return (
     <section className="border-t border-line" aria-labelledby="opinie">
       <div className="container-site section-y">

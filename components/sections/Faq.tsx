@@ -1,12 +1,15 @@
 import { faq } from "@/lib/content";
 import { Accordion } from "@/components/ui/Accordion";
 import { TextReveal } from "@/components/motion/TextReveal";
+import Link from "next/link";
+import { JsonLd } from "@/lib/seo";
 
-export function Faq() {
+export function Faq({ limit, more }: { limit?: number; more?: { href: string; label: string } } = {}) {
+  const items = limit ? faq.slice(0, limit) : faq;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: faq.map((f) => ({
+    mainEntity: items.map((f) => ({
       "@type": "Question",
       name: f.q,
       acceptedAnswer: { "@type": "Answer", text: f.a },
@@ -14,10 +17,7 @@ export function Faq() {
   };
   return (
     <section className="container-site section-y grid gap-12 md:grid-cols-12" aria-labelledby="faq">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={jsonLd} />
       <div className="md:col-span-4">
         <TextReveal
           text="Częste pytania"
@@ -25,7 +25,12 @@ export function Faq() {
         />
       </div>
       <div className="md:col-span-7 md:col-start-6">
-        <Accordion items={faq} />
+        <Accordion items={items} />
+        {more && (
+          <Link href={more.href} className="link-draw mt-8 inline-block text-[15px] font-semibold">
+            {more.label}
+          </Link>
+        )}
       </div>
     </section>
   );

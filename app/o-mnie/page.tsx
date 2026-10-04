@@ -5,12 +5,14 @@ import { PortraitPlaceholder } from "@/components/ui/PortraitPlaceholder";
 import { Testimonials } from "@/components/sections/Testimonials";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { Seal } from "@/components/ui/Seal";
+import { JsonLd, breadcrumbs } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "O mnie",
+  title: "O mnie: twórca stron internetowych dla firm",
   description:
-    "Jestem Filip Wrona. Projektuję i koduję strony internetowe dla firm i sam prowadzę każdy projekt od początku do końca.",
+    "Jestem Filip Wrona. Projektuję i koduję strony internetowe dla firm w Next.js i sam prowadzę każdy projekt: od pierwszej rozmowy, przez projekt, po SEO i wsparcie po starcie.",
   alternates: { canonical: "/o-mnie" },
+  openGraph: { url: "/o-mnie" },
 };
 
 // TODO: przepisz te teksty własnymi słowami. Konkretne historie budują zaufanie najlepiej.
@@ -32,6 +34,7 @@ const principles = [
 export default function AboutPage() {
   return (
     <>
+      <JsonLd data={breadcrumbs([{ name: "O mnie", path: "/o-mnie" }])} />
       <PageHeader
         title="Cześć, jestem Filip"
         lead="Projektuję i koduję strony internetowe dla firm. Pracuję sam, więc każdy projekt prowadzę osobiście, od pierwszej rozmowy po wsparcie po starcie."

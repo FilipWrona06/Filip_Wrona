@@ -1,47 +1,61 @@
 "use client";
 
-import { motion } from "motion/react";
-import type { ElementType } from "react";
+import { useEffect, useRef, type CSSProperties, type ElementType } from "react";
+import { noOrphans } from "@/lib/typography";
 
 type Props = {
   text: string;
   as?: ElementType;
   className?: string;
   delay?: number;
-  /** animuj od razu po załadowaniu zamiast przy wejściu w widok */
+  /** animuj od razu po wczytaniu zamiast przy wejściu w widok */
   immediate?: boolean;
 };
 
-// Nagłówek, którego słowa wysuwają się spod maski, jedno po drugim.
+/**
+ * Nagłówek, którego słowa wysuwają się spod maski, jedno po drugim.
+ * Animacja jest w czystym CSS (app/globals.css: .tr-*), a JavaScript tylko raz
+ * zaznacza, że nagłówek pojawił się na ekranie. Dzięki temu nawet kilkadziesiąt
+ * nagłówków na stronie praktycznie nie obciąża przeglądarki.
+ */
 export function TextReveal({ text, as: Tag = "h2", className = "", delay = 0, immediate }: Props) {
-  const words = text.split(" ");
-  const animateProps = immediate
-    ? { animate: "visible" as const }
-    : { whileInView: "visible" as const, viewport: { once: true, margin: "-10% 0px" } };
+  const ref = useRef<HTMLElement>(null);
+  // jednoliterowe słowa (w, z, i…) łączymy z następnym, żeby nie zostawały na końcu linii
+  const words = noOrphans(text).split(" ");
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || immediate) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.dataset.revealed = "";
+          io.disconnect();
+        }
+      },
+      { rootMargin: "0px 0px -10% 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [immediate]);
 
   return (
-    <Tag className={className}>
+    <Tag
+      ref={ref}
+      className={`${immediate ? "tr-immediate" : "tr"} ${className}`}
+      style={{ "--d": `${delay}s` } as CSSProperties}
+    >
       <span className="sr-only">{text}</span>
-      <motion.span aria-hidden initial="hidden" {...animateProps} className="block">
+      <span aria-hidden className="block">
         {words.map((word, i) => (
-          <span key={i} className="inline-block overflow-hidden pb-[0.08em] align-bottom">
-            <motion.span
-              data-word
-              className="inline-block"
-              variants={{
-                hidden: { y: "110%" },
-                visible: {
-                  y: "0%",
-                  transition: { duration: 0.9, delay: delay + i * 0.045, ease: [0.16, 1, 0.3, 1] },
-                },
-              }}
-            >
+          <span key={i} className="tr-mask">
+            <span data-word className="tr-word" style={{ "--i": i } as CSSProperties}>
               {word}
               {i < words.length - 1 ? "\u00A0" : ""}
-            </motion.span>
+            </span>
           </span>
         ))}
-      </motion.span>
+      </span>
     </Tag>
   );
 }

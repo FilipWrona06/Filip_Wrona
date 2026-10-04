@@ -1,15 +1,17 @@
 import { Hero } from "@/components/sections/Hero";
-import { ValuesBand } from "@/components/sections/ValuesBand";
 import { Manifesto } from "@/components/sections/Manifesto";
 import { FeaturedWork } from "@/components/sections/FeaturedWork";
+import { ValuesBand } from "@/components/sections/ValuesBand";
 import { WhyMe } from "@/components/sections/WhyMe";
 import { OfferList } from "@/components/sections/OfferList";
-import { Process } from "@/components/sections/Process";
+import { ProcessCompact } from "@/components/sections/ProcessCompact";
 import { AboutTeaser } from "@/components/sections/AboutTeaser";
-import { Testimonials } from "@/components/sections/Testimonials";
+import { LatestPosts } from "@/components/sections/LatestPosts";
 import { Faq } from "@/components/sections/Faq";
-import { FinalCta } from "@/components/sections/FinalCta";
+import { HomeContact } from "@/components/sections/HomeContact";
 
+// Strona główna to skrót całej witryny: z każdej części najważniejsze rzeczy
+// i przejście do szczegółów, a na końcu formularz kontaktowy.
 export default function HomePage() {
   return (
     <>
@@ -18,12 +20,12 @@ export default function HomePage() {
       <FeaturedWork />
       <ValuesBand />
       <WhyMe />
-      <OfferList />
-      <Process />
+      <OfferList moreLink />
+      <ProcessCompact />
       <AboutTeaser />
-      <Testimonials />
-      <Faq />
-      <FinalCta />
+      <LatestPosts />
+      <Faq limit={4} more={{ href: "/oferta", label: "Więcej pytań w ofercie" }} />
+      <HomeContact />
     </>
   );
 }

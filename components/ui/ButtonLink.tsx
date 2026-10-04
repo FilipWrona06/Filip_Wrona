@@ -64,6 +64,11 @@ export function ButtonLink({
         <a href={href} target="_blank" rel="noopener noreferrer" className={classes}>
           {inner}
         </a>
+      ) : href.startsWith("#") ? (
+        // kotwica na tej samej stronie: płynne przewinięcie (obsługa w Providers)
+        <a href={href} className={classes}>
+          {inner}
+        </a>
       ) : (
         <Link href={href} className={classes}>
           {inner}

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { care, extras } from "@/lib/offer";
+import { care, extras, packages } from "@/lib/offer";
+import { JsonLd, breadcrumbs } from "@/lib/seo";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { OfferList } from "@/components/sections/OfferList";
 import { Process } from "@/components/sections/Process";
@@ -7,18 +8,19 @@ import { Faq } from "@/components/sections/Faq";
 import { FinalCta } from "@/components/sections/FinalCta";
 
 export const metadata: Metadata = {
-  title: "Oferta i ceny",
-  description:
-    "Strony wizytówki, strony firmowe i projekty indywidualne. Sprawdź, co zawiera każdy pakiet, ile kosztuje i jak długo trwa.",
+  title: "Cennik stron internetowych dla firm",
+  description: `Ile kosztuje strona internetowa? Strona wizytówka ${packages[0].price}, strona firmowa ${packages[1].price}. Zobacz, co zawiera każdy pakiet, czas realizacji i koszt opieki technicznej.`,
   alternates: { canonical: "/oferta" },
+  openGraph: { url: "/oferta" },
 };
 
 export default function OfferPage() {
   return (
     <>
+      <JsonLd data={breadcrumbs([{ name: "Oferta", path: "/oferta" }])} />
       <PageHeader
         title="Oferta i ceny"
-        lead="Jasne zakresy i ceny początkowe. Ostateczną wycenę dostajesz po krótkiej, bezpłatnej rozmowie."
+        lead="Tworzenie stron internetowych dla firm: jasne zakresy i ceny początkowe. Ostateczną wycenę dostajesz po krótkiej, bezpłatnej rozmowie."
       />
       <OfferList withHeading={false} />
 

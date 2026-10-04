@@ -176,11 +176,13 @@ export function StretchWord({ text, interactive = false, intro = false, classNam
   }, [interactive, intro, text]);
 
   return (
-    <div ref={wrapRef} className={`w-full overflow-hidden [contain:layout_paint] ${className}`}>
+    <div ref={wrapRef} className={`w-full overflow-hidden [container-type:inline-size] [contain:layout_paint] ${className}`}>
       <span
         ref={lineRef}
         className="inline-block whitespace-nowrap leading-[0.82] tracking-[-0.04em] align-top"
-        style={{ fontSize: "15.5vw" }}
+        // 19.72% szerokości kontenera = dokładnie to, co wylicza fit(); rozmiar jest poprawny
+        // od pierwszej klatki, więc układ nie przeskakuje po wczytaniu skryptu (CLS = 0)
+        style={{ fontSize: "19.72cqw" }}
         aria-hidden
       >
         {chars.map((ch, i) => (

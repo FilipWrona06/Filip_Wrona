@@ -1,5 +1,18 @@
-// Wszystkie dane kontaktowe i linki w jednym miejscu.
-// TODO: uzupełnij telefon i linki do social mediów.
+// Wszystkie dane firmy, kontaktu i SEO w jednym miejscu.
+// TODO: uzupełnij telefon, WhatsApp, Facebook i LinkedIn.
+
+export type SiteLocation = {
+  /** Miasto, w którym działasz (np. "Katowice"). Puste = działasz zdalnie w całej Polsce. */
+  city: string;
+  /** Województwo (np. "śląskie"). */
+  region: string;
+  postalCode: string;
+  /** Ulica. Zostaw puste, jeśli pracujesz z domu i nie chcesz pokazywać adresu. */
+  street: string;
+  lat: number | null;
+  lng: number | null;
+};
+
 export const site = {
   name: "Filip Wrona",
   tagline: "Strony internetowe dla firm",
@@ -11,15 +24,53 @@ export const site = {
   booking: "https://cal.com/filipwrona/15min",
   area: "Cała Polska, zdalnie",
   description:
-    "Projektuję i koduję szybkie, nowoczesne strony internetowe dla firm. Bez pośredników: rozmawiasz bezpośrednio ze mną, od pierwszego szkicu po wsparcie po starcie.",
+    "Tworzę szybkie, nowoczesne strony internetowe dla firm: indywidualny projekt, kodowanie w Next.js, SEO i Profil Firmy w Google. Bezpośredni kontakt z wykonawcą i bezpłatna wycena.",
+
+  /**
+   * Lokalne SEO. Uzupełnij miasto i województwo, a pojawią się w danych dla Google
+   * (adres firmy, obszar działania). Ulicę podaj tylko, jeśli przyjmujesz klientów.
+   */
+  location: {
+    city: "",
+    region: "",
+    postalCode: "",
+    street: "",
+    lat: null,
+    lng: null,
+  } as SiteLocation,
+
+  /** Obszary, które obsługujesz (do danych dla Google). Np. ["Polska", "Śląsk", "Katowice"]. */
+  areaServed: ["Polska"],
+
+  /** Link do Twojego Profilu Firmy w Google (po założeniu). Wzmacnia powiązanie strony z wizytówką. */
+  googleBusinessUrl: "",
+
+  /** Najważniejsze tematy, w których się specjalizujesz (dane dla Google, nie meta keywords). */
+  expertise: [
+    "Tworzenie stron internetowych",
+    "Projektowanie stron www",
+    "Strony internetowe dla firm",
+    "Strony wizytówki",
+    "Next.js",
+    "SEO lokalne",
+    "Profil Firmy w Google",
+    "Optymalizacja szybkości stron",
+  ],
+
   socials: [
-    { label: "Instagram", href: "https://instagram.com/filipwrona" },
+    { label: "Instagram", href: "https://www.instagram.com/filip_wrona/" },
     { label: "Facebook", href: "https://facebook.com/filipwrona" },
     { label: "LinkedIn", href: "https://linkedin.com/in/filipwrona" },
+    { label: "GitHub", href: "https://github.com/FilipWrona06" },
   ],
+
   nav: [
     { label: "Realizacje", href: "/realizacje" },
     { label: "Oferta", href: "/oferta" },
     { label: "O mnie", href: "/o-mnie" },
+    { label: "Blog", href: "/blog" },
   ],
-} as const;
+
+  /** Data ostatniej większej aktualizacji treści (do mapy strony). */
+  updated: "2026-10-04",
+};

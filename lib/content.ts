@@ -19,13 +19,6 @@ export const benefits = [
   },
 ];
 
-// Liczniki: wpisuj wyłącznie prawdziwe wartości.
-export const stats = [
-  { value: 100, suffix: "", label: "punktów w Google PageSpeed na moich stronach" },
-  { value: 3, suffix: "", label: "zadowolonych klientów, i liczba rośnie" },
-  { value: 24, suffix: " h", label: "maksymalny czas odpowiedzi na wiadomość" },
-];
-
 export const process = [
   {
     title: "Rozmowa",
@@ -45,27 +38,9 @@ export const process = [
   },
 ];
 
-// TODO: wpisz prawdziwe opinie swoich klientów.
-export const testimonials = [
-  {
-    quote:
-      "W końcu nie muszę przerywać zabiegów, żeby odebrać telefon. Pacjenci sami wybierają termin.",
-    author: "Anna K.",
-    company: "Pracownia Fizjoterapii",
-  },
-  {
-    quote:
-      "Filip wszystko tłumaczył po ludzku i dotrzymał terminu co do dnia. Telefon dzwoni częściej niż przed stroną.",
-    author: "Marek W.",
-    company: "Warsztat Samochodowy",
-  },
-  {
-    quote:
-      "Strona wygląda tak, jak nasze wnętrza: spokojnie i elegancko. Klienci często o niej wspominają.",
-    author: "Ola i Kuba",
-    company: "Studio Wnętrz",
-  },
-];
+// Opinie klientów: wpisuj wyłącznie prawdziwe. Dopóki lista jest pusta, sekcja opinii się nie pokazuje.
+// Przykład: { quote: "…", author: "Imię N.", company: "Nazwa firmy" }
+export const testimonials: { quote: string; author: string; company: string }[] = [];
 
 export const faq = [
   {

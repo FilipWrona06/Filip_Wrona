@@ -2,6 +2,7 @@ import Link from "next/link";
 import { site } from "@/lib/site";
 import { StretchWord } from "@/components/motion/StretchWord";
 import { Seal } from "@/components/ui/Seal";
+import { FooterNav } from "@/components/layout/FooterNav";
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -26,20 +27,7 @@ export function Footer() {
             aria-label="Stopka"
             className="grid grid-cols-2 gap-8 text-[15px] md:col-span-6 md:grid-cols-3"
           >
-            <ul className="space-y-3">
-              {site.nav.map((item) => (
-                <li key={item.href}>
-                  <Link href={item.href} className="link-draw">
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-              <li>
-                <Link href="/kontakt" className="link-draw">
-                  Kontakt
-                </Link>
-              </li>
-            </ul>
+            <FooterNav />
             <ul className="space-y-3">
               {site.socials.map((s) => (
                 <li key={s.href}>

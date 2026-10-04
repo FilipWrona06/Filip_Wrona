@@ -1,13 +1,13 @@
 import { projects } from "@/lib/projects";
-import { ProjectCard } from "@/components/ui/ProjectCard";
+import { ProjectRow } from "@/components/ui/ProjectRow";
 import { TextReveal } from "@/components/motion/TextReveal";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 
+// Realizacje na stronie głównej: najnowsze projekty jako szerokie wiersze.
 export function FeaturedWork() {
-  const [first, second, third] = projects;
   return (
     <section className="container-site section-y" aria-labelledby="realizacje-tytul">
-      <div className="mb-14 flex flex-col justify-between gap-6 md:mb-20 md:flex-row md:items-end">
+      <div className="mb-16 flex flex-col justify-between gap-6 md:mb-24 md:flex-row md:items-end">
         <TextReveal
           text="Wybrane realizacje"
           className="type-display max-w-[10ch] text-[clamp(2.25rem,7vw,6.5rem)]"
@@ -18,26 +18,13 @@ export function FeaturedWork() {
         </p>
       </div>
 
-      {/* Asymetryczny układ: duży projekt i dwa mniejsze, przesunięte względem siebie */}
-      <div className="grid gap-x-8 gap-y-16 md:grid-cols-12">
-        {first && (
-          <div className="md:col-span-12">
-            <ProjectCard project={first} aspect="aspect-[4/3] md:aspect-[21/9]" />
-          </div>
-        )}
-        {second && (
-          <div className="md:col-span-6">
-            <ProjectCard project={second} aspect="aspect-[4/5]" />
-          </div>
-        )}
-        {third && (
-          <div className="md:col-span-5 md:col-start-8 md:mt-40">
-            <ProjectCard project={third} aspect="aspect-[4/5]" />
-          </div>
-        )}
+      <div className="space-y-24 md:space-y-36">
+        {projects.slice(0, 3).map((p, i) => (
+          <ProjectRow key={p.slug} project={p} index={i} />
+        ))}
       </div>
 
-      <div className="mt-16 md:mt-24">
+      <div className="mt-20 md:mt-28">
         <ButtonLink href="/realizacje" variant="outline">
           Wszystkie realizacje
         </ButtonLink>

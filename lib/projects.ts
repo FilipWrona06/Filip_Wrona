@@ -1,5 +1,7 @@
 // Realizacje. Każdy obiekt to osobna podstrona /realizacje/[slug].
-// TODO: podmień przykładowe dane na swoich trzech klientów.
+// Opisy powstały na podstawie tego, co widać na gotowych stronach.
+// TODO: dopisz własnymi słowami kulisy projektu (jak wyglądała współpraca, co było najtrudniejsze),
+// a gdy zbierzesz dane, dodaj `results` (np. liczba zapytań) i opinię klienta w `testimonial`.
 // Zrzuty ekranu wrzuć do /public/realizacje/ i wpisz ścieżki w `cover` i `gallery`.
 // Dopóki nie ma zdjęć, strona pokazuje typograficzną zaślepkę.
 
@@ -9,12 +11,15 @@ export type Project = {
   industry: string;
   year: string;
   scope: string[];
-  duration: string;
   url?: string;
   summary: string;
   challenge: string;
   solution: string;
-  results: { value: string; label: string }[];
+  /** co zawiera strona: krótkie punkty */
+  features: string[];
+  tech: string[];
+  duration?: string;
+  results?: { value: string; label: string }[];
   cover?: string;
   gallery?: string[];
   testimonial?: { quote: string; author: string; role: string };
@@ -22,67 +27,57 @@ export type Project = {
 
 export const projects: Project[] = [
   {
-    slug: "pracownia-fizjoterapii",
-    client: "Pracownia Fizjoterapii",
-    industry: "Zdrowie",
+    slug: "upadlosc-konsumencka-chorzow",
+    client: "Upadłość Konsumencka Chorzów",
+    industry: "Kancelaria oddłużeniowa",
     year: "2026",
-    scope: ["Projekt graficzny", "Strona w Next.js", "Rezerwacje online"],
-    duration: "3 tygodnie",
-    url: "https://example.com",
+    scope: ["Projekt graficzny", "Strona w Next.js", "SEO lokalne", "Formularz konsultacji"],
+    url: "https://upadlosckonsumenckachorzow.pl",
     summary:
-      "Nowa strona z rezerwacją wizyt, która odciążyła telefon w gabinecie.",
+      "Strona kancelarii oddłużeniowej, która prowadzi osobę w trudnej sytuacji od pierwszego niepokoju do bezpłatnej konsultacji.",
     challenge:
-      "Pacjenci umawiali się wyłącznie telefonicznie, a stara strona nie działała dobrze na telefonach. Właścicielka traciła czas na odbieranie połączeń w trakcie zabiegów.",
+      "Po pomoc w upadłości konsumenckiej sięgają ludzie w stresie, często zawstydzeni swoją sytuacją. Strona musiała budzić zaufanie od pierwszej sekundy, tłumaczyć skomplikowaną procedurę prostym językiem i docierać do osób szukających pomocy w Chorzowie i na całym Śląsku.",
     solution:
-      "Zaprojektowałem prostą stronę z cennikiem, opisem zabiegów i rezerwacją online podpiętą pod kalendarz gabinetu. Każda usługa ma własną podstronę, którą łatwo znaleźć w Google.",
-    results: [
-      { value: "62%", label: "wizyt umawianych online" },
-      { value: "0,9 s", label: "czas ładowania na telefonie" },
+      "Zaprojektowałem stronę jako spokojną ścieżkę: najpierw rozpoznanie problemu („Długi przejęły kontrolę nad Twoim życiem?”), potem procedura rozpisana na pięć zrozumiałych kroków, przejrzysty cennik bez ukrytych kosztów, odpowiedzi na najczęstsze obawy i formularz bezpłatnej konsultacji. Numer telefonu jest pod ręką na każdym etapie, a lokalne SEO wzmacnia widoczność w regionie.",
+    features: [
+      "Ścieżka od problemu do bezpłatnej konsultacji",
+      "Procedura upadłości w pięciu krokach",
+      "Przejrzysty cennik z ratami",
+      "Najczęstsze pytania i obawy",
+      "Formularz konsultacji i telefon zawsze pod ręką",
+      "Mapa Google ładowana dopiero po kliknięciu",
+      "Lokalne SEO dla Chorzowa i Śląska",
+      "Dział publikacji",
     ],
-    testimonial: {
-      quote:
-        "W końcu nie muszę przerywać zabiegów, żeby odebrać telefon. Pacjenci sami wybierają termin.",
-      author: "Anna K.",
-      role: "właścicielka gabinetu",
-    },
+    tech: ["Next.js", "SEO lokalne", "RODO i cookies"],
+    // Grafika ze strony klienta. Najlepiej podmień ją na zrzut ekranu zapisany w /public/realizacje/.
+    cover: "https://www.upadlosckonsumenckachorzow.pl/og-image.jpg",
   },
   {
-    slug: "warsztat-samochodowy",
-    client: "Warsztat Samochodowy",
-    industry: "Motoryzacja",
+    slug: "fundacja-maxime",
+    client: "Fundacja Maxime",
+    industry: "Kultura i muzyka",
     year: "2026",
-    scope: ["Strona firmowa", "Profil Firmy w Google", "SEO lokalne"],
-    duration: "2 tygodnie",
-    url: "https://example.com",
+    scope: ["Projekt graficzny", "Rozbudowana strona w Next.js", "Wydarzenia i galerie", "Newsletter"],
+    url: "https://www.maxime.com.pl",
     summary:
-      "Strona i wizytówka Google, dzięki którym warsztat pojawia się w lokalnych wynikach wyszukiwania.",
+      "Rozbudowana strona fundacji i orkiestry: wydarzenia, aktualności, galerie i newsletter w jednym, scenicznym klimacie.",
     challenge:
-      "Warsztat istniał tylko na Facebooku, więc osoby szukające mechanika w okolicy w ogóle go nie znajdowały.",
+      "Fundacja potrzebowała miejsca, które odda emocje koncertów, a jednocześnie będzie praktycznym narzędziem: kalendarzem wydarzeń, kroniką działalności i stałym kanałem kontaktu z publicznością.",
     solution:
-      "Zbudowałem stronę z listą usług, galerią i formularzem wyceny, a do tego skonfigurowałem Profil Firmy w Google i powiązałem go ze stroną.",
-    results: [
-      { value: "3×", label: "więcej zapytań miesięcznie" },
-      { value: "Top 3", label: "w mapach dla lokalnych fraz" },
+      "Postawiłem na ciemną, sceniczną estetykę z materiałem wideo w nagłówku, który od razu przenosi na koncert. Wydarzenia, aktualności i galerie mają osobne działy z własnymi podstronami, publiczność może zostawiać opinie, a zapis do newslettera pomaga budować grono stałych słuchaczy.",
+    features: [
+      "Wideo w nagłówku strony",
+      "Kalendarz wydarzeń z podstronami",
+      "Aktualności fundacji",
+      "Galerie zdjęć z koncertów",
+      "Opinie publiczności",
+      "Zapis do newslettera",
+      "Regulamin, polityka prywatności i cookies",
     ],
-  },
-  {
-    slug: "studio-wnetrz",
-    client: "Studio Wnętrz",
-    industry: "Architektura wnętrz",
-    year: "2026",
-    scope: ["Projekt graficzny", "Portfolio", "Animacje"],
-    duration: "4 tygodnie",
-    url: "https://example.com",
-    summary:
-      "Portfolio, w którym projekty wnętrz są głównym bohaterem, a nie tłem.",
-    challenge:
-      "Studio pokazywało realizacje na Instagramie, ale bez strony trudno było przekonać większych klientów inwestycyjnych.",
-    solution:
-      "Stworzyłem minimalistyczne portfolio z dużymi zdjęciami, płynnymi przejściami i osobną podstroną dla każdego projektu. Zdjęcia ładują się w nowoczesnych formatach, więc strona pozostaje szybka.",
-    results: [
-      { value: "98", label: "punktów w PageSpeed" },
-      { value: "2", label: "nowe zlecenia w pierwszym miesiącu" },
-    ],
+    tech: ["Next.js", "Wielostronicowa struktura", "Newsletter"],
+    // Kadr z nagłówka strony klienta. Najlepiej podmień go na zrzut ekranu zapisany w /public/realizacje/.
+    cover: "https://www.maxime.com.pl/video-poster.webp",
   },
 ];
 

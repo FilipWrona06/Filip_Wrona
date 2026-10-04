@@ -1,12 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { useActionState, useEffect, useRef } from "react";
 import { sendContact, type ContactState } from "@/app/kontakt/actions";
-
-const types = ["Strona wizytówka", "Strona firmowa", "Projekt indywidualny", "Jeszcze nie wiem"];
-const budgets = ["do 2 000 zł", "2 000–5 000 zł", "5 000–10 000 zł", "powyżej 10 000 zł"];
+import { BUDGETS as budgets, PROJECT_TYPES as types } from "@/lib/contact";
+import { site } from "@/lib/site";
 
 const initial: ContactState = { status: "idle" };
 
@@ -44,27 +42,33 @@ const inputClass =
 
 export function ContactForm() {
   const [state, action, pending] = useActionState(sendContact, initial);
+  // Czas od wyświetlenia formularza (boty wysyłają go natychmiast).
+  // Pole aktualizuje się samo, więc ma poprawną wartość niezależnie od sposobu wysyłki.
+  const elapsedRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const shownAt = Date.now();
+    const id = window.setInterval(() => {
+      if (elapsedRef.current) elapsedRef.current.value = String(Date.now() - shownAt);
+    }, 500);
+    return () => window.clearInterval(id);
+  }, []);
   const e = state.errors ?? {};
   const v = state.values ?? {};
 
   if (state.status === "success") {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex min-h-[28rem] flex-col justify-center"
-        role="status"
-      >
+      <div className="fade-in flex min-h-[28rem] flex-col justify-center" role="status">
         <p className="type-heading text-4xl md:text-5xl">Wiadomość wysłana.</p>
         <p className="mt-4 max-w-[40ch] text-lg text-stone">
           Odpowiem w ciągu jednego dnia roboczego. Jeśli sprawa jest pilna, zadzwoń.
         </p>
-      </motion.div>
+      </div>
     );
   }
 
   return (
     <form action={action} noValidate className="grid gap-8 md:grid-cols-2">
+      <input ref={elapsedRef} type="hidden" name="elapsed" defaultValue="0" />
       <div className="hidden" aria-hidden>
         <label>
           Strona www
@@ -77,6 +81,7 @@ export function ContactForm() {
           id="name"
           name="name"
           autoComplete="given-name"
+          maxLength={80}
           defaultValue={v.name}
           aria-invalid={!!e.name}
           aria-describedby={e.name ? "name-error" : undefined}
@@ -89,18 +94,24 @@ export function ContactForm() {
           name="email"
           type="email"
           autoComplete="email"
+          maxLength={254}
+          inputMode="email"
           defaultValue={v.email}
           aria-invalid={!!e.email}
           aria-describedby={e.email ? "email-error" : undefined}
           className={inputClass}
         />
       </Field>
-      <Field label="Telefon" name="phone" hint="opcjonalnie">
+      <Field label="Telefon" name="phone" hint="opcjonalnie" error={e.phone}>
         <input
           id="phone"
           name="phone"
           type="tel"
           autoComplete="tel"
+          maxLength={20}
+          inputMode="tel"
+          aria-invalid={!!e.phone}
+          aria-describedby={e.phone ? "phone-error" : undefined}
           defaultValue={v.phone}
           className={inputClass}
         />
@@ -153,6 +164,7 @@ export function ContactForm() {
             id="message"
             name="message"
             rows={5}
+            maxLength={4000}
             defaultValue={v.message}
             placeholder="Czym zajmuje się Twoja firma i czego oczekujesz od strony?"
             aria-invalid={!!e.message}
@@ -171,7 +183,9 @@ export function ContactForm() {
             aria-invalid={!!e.consent}
           />
           <span>
-            Zgadzam się na przetwarzanie moich danych w celu odpowiedzi na wiadomość. Szczegóły w{" "}
+            Zgadzam się na przetwarzanie moich danych w celu odpowiedzi na wiadomość i przygotowania
+            wyceny. Administratorem danych jest {site.name}. Zgodę możesz wycofać w każdej chwili.
+            Szczegóły w{" "}
             <Link href="/polityka-prywatnosci" className="text-ink underline underline-offset-4">
               polityce prywatności
             </Link>
@@ -193,18 +207,11 @@ export function ContactForm() {
         >
           {pending ? "Wysyłanie…" : "Wyślij wiadomość"}
         </button>
-        <AnimatePresence>
-          {state.status === "error" && state.message && (
-            <motion.p
-              role="alert"
-              initial={{ opacity: 0, x: -8 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="max-w-[44ch] text-[15px]"
-            >
-              {state.message}
-            </motion.p>
-          )}
-        </AnimatePresence>
+        {state.status === "error" && state.message && (
+          <p role="alert" className="fade-in max-w-[44ch] text-[15px]">
+            {state.message}
+          </p>
+        )}
       </div>
     </form>
   );

@@ -1,9 +1,12 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useMotionValue, useSpring } from "motion/react";
 
-// Element lekko „przyciąga się” do kursora, gdy ten jest blisko.
+/**
+ * Element lekko „przyciąga się” do kursora. Tylko dla myszki (na dotyku nic nie robi).
+ * Bez biblioteki: przesunięcie ustawiamy bezpośrednio w stylu, a płynność daje
+ * przejście CSS (.magnetic), więc nawet kilkanaście przycisków nie obciąża strony.
+ */
 export function Magnetic({
   children,
   strength = 0.3,
@@ -14,31 +17,22 @@ export function Magnetic({
   className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const sx = useSpring(x, { stiffness: 250, damping: 18, mass: 0.5 });
-  const sy = useSpring(y, { stiffness: 250, damping: 18, mass: 0.5 });
 
   const onMove = (e: React.PointerEvent) => {
-    if (e.pointerType !== "mouse" || !ref.current) return;
-    const r = ref.current.getBoundingClientRect();
-    x.set((e.clientX - (r.left + r.width / 2)) * strength);
-    y.set((e.clientY - (r.top + r.height / 2)) * strength);
+    const el = ref.current;
+    if (e.pointerType !== "mouse" || !el) return;
+    const r = el.getBoundingClientRect();
+    const x = (e.clientX - (r.left + r.width / 2)) * strength;
+    const y = (e.clientY - (r.top + r.height / 2)) * strength;
+    el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
   };
   const reset = () => {
-    x.set(0);
-    y.set(0);
+    if (ref.current) ref.current.style.transform = "";
   };
 
   return (
-    <motion.div
-      ref={ref}
-      onPointerMove={onMove}
-      onPointerLeave={reset}
-      style={{ x: sx, y: sy }}
-      className={`inline-block ${className}`}
-    >
+    <div ref={ref} onPointerMove={onMove} onPointerLeave={reset} className={`magnetic inline-block ${className}`}>
       {children}
-    </motion.div>
+    </div>
   );
 }

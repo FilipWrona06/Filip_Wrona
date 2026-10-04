@@ -1,9 +1,17 @@
 import Link from "next/link";
 import { packages } from "@/lib/offer";
 import { TextReveal } from "@/components/motion/TextReveal";
+import { ButtonLink } from "@/components/ui/ButtonLink";
 
 // Oferta jako lista wierszy, nie karty. Po najechaniu wiersz odwraca kolory.
-export function OfferList({ withHeading = true }: { withHeading?: boolean }) {
+export function OfferList({
+  withHeading = true,
+  moreLink = false,
+}: {
+  withHeading?: boolean;
+  /** przycisk „Pełna oferta” pod listą (na stronie głównej) */
+  moreLink?: boolean;
+}) {
   return (
     <section className="container-site section-y" aria-label="Oferta">
       {withHeading && (
@@ -49,6 +57,13 @@ export function OfferList({ withHeading = true }: { withHeading?: boolean }) {
           </li>
         ))}
       </ul>
+      {moreLink && (
+        <div className="mt-12 md:mt-16">
+          <ButtonLink href="/oferta" variant="outline">
+            Pełna oferta i dodatki
+          </ButtonLink>
+        </div>
+      )}
     </section>
   );
 }

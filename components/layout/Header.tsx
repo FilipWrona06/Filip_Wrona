@@ -12,6 +12,7 @@ import {
 } from "motion/react";
 import { site } from "@/lib/site";
 import { CrowMark } from "@/components/ui/CrowMark";
+import { isActivePath } from "@/lib/nav";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -27,6 +28,10 @@ export function Header() {
   const progress = useSpring(scrollYProgress, { stiffness: 200, damping: 40 });
   const [compact, setCompact] = useState(false);
   const [open, setOpen] = useState(false);
+  // podświetlenie w menu: podąża za kursorem, a bez kursora stoi na bieżącej stronie
+  const [hovered, setHovered] = useState<string | null>(null);
+  const activeHref = site.nav.find((i) => isActivePath(pathname, i.href))?.href ?? null;
+  const highlight = hovered ?? activeHref;
 
   useMotionValueEvent(scrollY, "change", (y) => setCompact(y > 80));
 
@@ -69,24 +74,47 @@ export function Header() {
           <nav
             aria-label="Główna"
             className={`relative z-10 hidden items-center transition-[gap] duration-700 md:flex ${
-              pill ? "gap-6" : "gap-10"
+              pill ? "gap-3" : "gap-5"
             }`}
           >
-            {site.nav.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={pathname.startsWith(item.href) ? "page" : undefined}
-                className={`link-draw transition-[font-size] duration-700 aria-[current=page]:bg-[length:100%_1px] ${
-                  pill ? "text-[13.5px]" : "text-[15px]"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
+            <div className="flex items-center" onMouseLeave={() => setHovered(null)}>
+              {site.nav.map((item) => {
+                const active = isActivePath(pathname, item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-current={active ? "page" : undefined}
+                    onMouseEnter={() => setHovered(item.href)}
+                    onFocus={() => setHovered(item.href)}
+                    onBlur={() => setHovered(null)}
+                    className={`relative rounded-full transition-[padding,font-size,color] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                      pill ? "px-3 py-1 text-[13.5px]" : "px-4 py-1.5 text-[15px]"
+                    } ${active ? "text-ink" : "text-ink/70 hover:text-ink"}`}
+                  >
+                    {highlight === item.href && (
+                      <motion.span
+                        layoutId="nav-highlight"
+                        aria-hidden
+                        className="absolute inset-0 rounded-full bg-ink/[0.07]"
+                        transition={{ type: "spring", stiffness: 380, damping: 32, mass: 0.8 }}
+                      />
+                    )}
+                    <span className="relative">{item.label}</span>
+                    {active && (
+                      <span
+                        aria-hidden
+                        className="absolute -bottom-1.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-violet"
+                      />
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
             <Link
               href="/kontakt"
-              className={`group relative inline-flex items-center overflow-hidden rounded-full bg-ink font-semibold text-paper transition-[height,padding,font-size] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+              aria-current={isActivePath(pathname, "/kontakt") ? "page" : undefined}
+              className={`group relative aria-[current=page]:bg-violet inline-flex items-center overflow-hidden rounded-full bg-ink font-semibold text-paper transition-[height,padding,font-size] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                 pill ? "h-8 px-4 text-[13px]" : "h-10 px-5 text-[14px]"
               }`}
             >
@@ -94,7 +122,7 @@ export function Header() {
                 aria-hidden
                 className="absolute inset-0 translate-y-full rounded-full bg-violet transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-y-0"
               />
-              <span className="relative">Bezpłatna wycena</span>
+              <span className="relative">Kontakt</span>
             </Link>
           </nav>
 
@@ -149,7 +177,14 @@ export function Header() {
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.15 + i * 0.06, duration: 0.6, ease }}
                 >
-                  <Link href={item.href} className="type-heading block py-1 text-5xl">
+                  <Link
+                    href={item.href}
+                    aria-current={isActivePath(pathname, item.href) ? "page" : undefined}
+                    className="type-heading flex items-center gap-4 py-1 text-5xl aria-[current=page]:text-[#b3a4ff]"
+                  >
+                    {isActivePath(pathname, item.href) && (
+                      <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-full bg-violet" />
+                    )}
                     {item.label}
                   </Link>
                 </motion.div>

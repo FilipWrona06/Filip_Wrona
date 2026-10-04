@@ -13,7 +13,7 @@ export function Process() {
   const scaleY = useSpring(scrollYProgress, { stiffness: 120, damping: 30 });
 
   return (
-    <section className="bg-ink text-paper" aria-labelledby="proces">
+    <section id="proces" className="bg-ink text-paper" aria-label="Jak pracuję">
       <div className="container-site section-y grid gap-16 md:grid-cols-12">
         <div className="md:sticky md:top-32 md:col-span-5 md:self-start">
           <TextReveal
@@ -34,23 +34,21 @@ export function Process() {
           />
           <ol className="space-y-20 md:space-y-28">
             {process.map((step, i) => (
-              <motion.li
-                key={step.title}
-                className="relative pl-16"
-                initial={{ opacity: 0.25 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ margin: "-45% 0px -45% 0px" }}
-                transition={{ duration: 0.5 }}
-              >
-                <span
-                  className="absolute top-0 left-0 z-10 flex h-[2.1rem] w-[2.1rem] items-center justify-center rounded-full border border-paper bg-ink text-sm font-semibold"
+              <li key={step.title} className="relative pl-16">
+                {/* krok na środku ekranu wyróżnia się fioletowym kółkiem; tekst jest zawsze w pełni czytelny */}
+                <motion.span
+                  className="absolute top-0 left-0 z-10 flex h-[2.1rem] w-[2.1rem] items-center justify-center rounded-full border text-sm font-semibold"
+                  initial={{ backgroundColor: "#141312", borderColor: "#f7f6f2" }}
+                  whileInView={{ backgroundColor: "#6b4eff", borderColor: "#6b4eff" }}
+                  viewport={{ margin: "-45% 0px -45% 0px" }}
+                  transition={{ duration: 0.5 }}
                   aria-hidden
                 >
                   {i + 1}
-                </span>
+                </motion.span>
                 <h3 className="type-heading text-3xl md:text-4xl">{step.title}</h3>
                 <p className="mt-4 max-w-[44ch] text-lg leading-relaxed text-smoke">{step.text}</p>
-              </motion.li>
+              </li>
             ))}
           </ol>
         </div>

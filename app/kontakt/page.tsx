@@ -2,17 +2,20 @@ import type { Metadata } from "next";
 import { site } from "@/lib/site";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ContactForm } from "@/components/ui/ContactForm";
+import { JsonLd, breadcrumbs } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Kontakt i bezpłatna wycena",
+  title: "Kontakt i bezpłatna wycena strony internetowej",
   description:
-    "Opisz swój projekt, a w ciągu jednego dnia roboczego dostaniesz odpowiedź z propozycją wyceny. Możesz też od razu umówić krótką rozmowę.",
+    "Opisz swój projekt, a w ciągu jednego dnia roboczego dostaniesz odpowiedź z wyceną strony internetowej. Możesz też od razu umówić krótką, bezpłatną rozmowę.",
   alternates: { canonical: "/kontakt" },
+  openGraph: { url: "/kontakt" },
 };
 
 export default function ContactPage() {
   return (
     <>
+      <JsonLd data={breadcrumbs([{ name: "Kontakt", path: "/kontakt" }])} />
       <PageHeader
         title="Bezpłatna wycena"
         lead="Opisz krótko swój projekt. Odpowiem w ciągu jednego dnia roboczego z pytaniami albo od razu z wyceną."

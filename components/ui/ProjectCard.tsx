@@ -7,10 +7,12 @@ export function ProjectCard({
   project,
   aspect = "aspect-[4/3]",
   priority,
+  showScope = false,
 }: {
   project: Project;
   aspect?: string;
   priority?: boolean;
+  showScope?: boolean;
 }) {
   return (
     <Link
@@ -28,6 +30,15 @@ export function ProjectCard({
         <span className="shrink-0 text-sm text-stone">{project.year}</span>
       </div>
       <p className="mt-2 max-w-[52ch] text-stone">{project.summary}</p>
+      {showScope && (
+        <ul className="mt-4 flex flex-wrap gap-2" aria-label="Zakres prac">
+          {project.scope.map((s) => (
+            <li key={s} className="rounded-full border border-line px-3 py-1 text-sm">
+              {s}
+            </li>
+          ))}
+        </ul>
+      )}
     </Link>
   );
 }
